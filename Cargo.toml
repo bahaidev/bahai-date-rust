@@ -1,0 +1,12 @@
+[package]
+name = "bahai-date"
+version = "0.1.0"
+edition = "2021"
+description = "Baha'i (Badi) date converter CLI"
+license = "ISC"
+
+[dependencies]
+badi-date = "0.2"
+chrono = "0.4"
+chrono-tz = "0.10"
+clap = { version = "4", features = ["derive"] }
