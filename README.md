@@ -9,14 +9,14 @@ A simple command-line tool to convert between Gregorian and Badí' (Bahá'í) ca
 ### From Source
 
 ```bash
-git clone https://github.com/yourusername/badi-date-rust.git
-cd badi-date-rust
+git clone https://forge.mitch.science/mitcheffendi/bahai-date-rust
+cd bahai-date-rust
 cargo install --path .
 ```
 
 ### Pre-built Binaries
 
-Download from [releases](https://github.com/yourusername/badi-date-rust/releases).
+Download from [releases](https://forge.mitch.science/mitcheffendi/bahai-date-rust/releases).
 
 ## Usage
 
