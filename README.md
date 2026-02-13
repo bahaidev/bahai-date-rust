@@ -1,3 +1,5 @@
+![A crummy, quick logo for the Bahai-Date-Rust project.](https://m1s5.c20.e2-5.dev/files/images/bahai-date-rust-logo.svg)
+
 # Baha'i Date Converter
 
 A simple command-line tool to convert between Gregorian and Badí' (Bahá'í) calendar dates. Works entirely offline.
