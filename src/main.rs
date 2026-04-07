@@ -32,11 +32,11 @@ struct Cli {
     lon: Option<f64>,
 
     /// Output using 'gum' and emojis for a pretty display
-    #[arg(short, long)]
+    #[arg(short, long, global = true)]
     fancy: bool,
 
     /// Show a Neofetch-style progress view of the year
-    #[arg(short, long)]
+    #[arg(short, long, global = true)]
     progress: bool,
 }
 
@@ -99,80 +99,84 @@ fn main() {
     match cli.command.unwrap_or(Commands::Today) {
         Commands::Today => {
             if cli.fancy {
-                show_fancy(tz, coords.ok());
+                show_fancy_today(tz, coords.ok());
             } else {
                 show_today(tz, coords.ok());
             }
         }
         Commands::ToBadi { year, month, day, hour, minute } => {
-            greg_to_badi(year, month, day, hour.unwrap_or(12), minute.unwrap_or(0), tz, coords.ok());
+            greg_to_badi(year, month, day, hour.unwrap_or(12), minute.unwrap_or(0), tz, coords.ok(), cli.fancy);
         }
         Commands::ToGreg { year, month, day } => {
-            badi_to_greg(year, month, day, tz, coords.ok());
+            badi_to_greg(year, month, day, tz, coords.ok(), cli.fancy);
         }
     }
 }
 
-fn show_fancy(tz: Tz, coords: Option<Coordinates>) {
+fn show_fancy_today(tz: Tz, coords: Option<Coordinates>) {
     let now = chrono::Utc::now().with_timezone(&tz);
     match LocalBadiDate::from_datetime(now, coords) {
         Ok(badi) => {
-            let month = badi.month();
-            let month_name = month.transliteration();
-            let day = badi.day();
-            let year = badi.year();
-            let greg_date = now.format("%Y-%m-%d").to_string();
-            let greg_time = now.format("%H:%M %Z").to_string();
-            let tz_name = badi.timezone().name();
-
-            let emoji = match month_name.as_str() {
-                "Bahá" => "✨",
-                "Jalál" => "🌟",
-                "Jamál" => "🌸",
-                "Azamat" => "🏛️",
-                "Núr" => "💡",
-                "Rahmat" => "🤲",
-                "Kalimát" => "📖",
-                "Kamál" => "🎭",
-                "Asmá" => "📛",
-                "Izzat" => "💪",
-                "Mashíyyat" => "🎯",
-                "Ilm" => "📚",
-                "Qudrat" => "⚡",
-                "Qawl" => "💬",
-                "Masá'il" => "❓",
-                "Sharaf" => "🏅",
-                "Sultán" => "👑",
-                "Mulk" => "🌍",
-                "Alá" => "🕊️",
-                "Ayyám-i-Há" | "Ayyam-i-Ha" => "🎉",
-                _ => "📅",
-            };
-
-            let header = format!("{} {}", emoji, month_name);
-            let subheader = format!("Day {}  •  Year {}", day, year);
-            let greg_info = format!("📅 {} {}", greg_date, greg_time);
-            let tz_info = format!("🕐 {}", tz_name);
-
-            let _ = std::process::Command::new("gum")
-                .arg("style")
-                .arg("--border")
-                .arg("rounded")
-                .arg("--border-foreground")
-                .arg("99")
-                .arg("--padding")
-                .arg("1 2")
-                .arg("--margin")
-                .arg("0")
-                .arg(format!("{}", gum_style(&header, "141", true)))
-                .arg(format!("{}", gum_style(&subheader, "183", false)))
-                .arg("")
-                .arg(format!("{}", gum_style(&greg_info, "247", false)))
-                .arg(format!("{}", gum_style(&tz_info, "247", false)))
-                .status();
+            show_fancy_badi(&badi, now);
         }
         Err(e) => eprintln!("Error: {:?}", e),
     }
+}
+
+fn show_fancy_badi(badi: &LocalBadiDate, dt: chrono::DateTime<Tz>) {
+    let month = badi.month();
+    let month_name = month.transliteration();
+    let day = badi.day();
+    let year = badi.year();
+    let greg_date = dt.format("%Y-%m-%d").to_string();
+    let greg_time = dt.format("%H:%M %Z").to_string();
+    let tz_name = badi.timezone().name();
+
+    let emoji = match month_name.as_str() {
+        "Bahá" => "✨",
+        "Jalál" => "🌟",
+        "Jamál" => "🌸",
+        "Azamat" => "🏛️",
+        "Núr" => "💡",
+        "Rahmat" => "🤲",
+        "Kalimát" => "📖",
+        "Kamál" => "🎭",
+        "Asmá" => "📛",
+        "Izzat" => "💪",
+        "Mashíyyat" => "🎯",
+        "Ilm" => "📚",
+        "Qudrat" => "⚡",
+        "Qawl" => "💬",
+        "Masá'il" => "❓",
+        "Sharaf" => "🏅",
+        "Sultán" => "👑",
+        "Mulk" => "🌍",
+        "Alá" => "🕊️",
+        "Ayyám-i-Há" | "Ayyam-i-Ha" => "🎉",
+        _ => "📅",
+    };
+
+    let header = format!("{} {}", emoji, month_name);
+    let subheader = format!("Day {}  •  Year {}", day, year);
+    let greg_info = format!("📅 {} {}", greg_date, greg_time);
+    let tz_info = format!("🕐 {}", tz_name);
+
+    let _ = std::process::Command::new("gum")
+        .arg("style")
+        .arg("--border")
+        .arg("rounded")
+        .arg("--border-foreground")
+        .arg("99")
+        .arg("--padding")
+        .arg("1 2")
+        .arg("--margin")
+        .arg("0")
+        .arg(format!("{}", gum_style(&header, "141", true)))
+        .arg(format!("{}", gum_style(&subheader, "183", false)))
+        .arg("")
+        .arg(format!("{}", gum_style(&greg_info, "247", false)))
+        .arg(format!("{}", gum_style(&tz_info, "247", false)))
+        .status();
 }
 
 fn show_today(tz: Tz, coords: Option<Coordinates>) {
@@ -255,17 +259,23 @@ fn gum_style(text: &str, foreground: &str, bold: bool) -> String {
     String::from_utf8_lossy(&output.stdout).trim().to_string()
 }
 
-fn greg_to_badi(year: i32, month: u32, day: u32, hour: u32, minute: u32, tz: Tz, coords: Option<Coordinates>) {
+fn greg_to_badi(year: i32, month: u32, day: u32, hour: u32, minute: u32, tz: Tz, coords: Option<Coordinates>, fancy: bool) {
     match tz.with_ymd_and_hms(year, month, day, hour, minute, 0).single() {
         Some(dt) => match LocalBadiDate::from_datetime(dt, coords) {
-            Ok(badi) => print_badi_date(&badi, dt),
+            Ok(badi) => {
+                if fancy {
+                    show_fancy_badi(&badi, dt);
+                } else {
+                    print_badi_date(&badi, dt);
+                }
+            }
             Err(e) => eprintln!("Error: {:?}", e),
         },
         None => eprintln!("Error: Invalid date"),
     }
 }
 
-fn badi_to_greg(year: u16, month: u8, day: u8, tz: Tz, coords: Option<Coordinates>) {
+fn badi_to_greg(year: u16, month: u8, day: u8, tz: Tz, coords: Option<Coordinates>, fancy: bool) {
     let badi_month = if month == 0 {
         BadiMonth::AyyamIHa
     } else {
@@ -275,8 +285,12 @@ fn badi_to_greg(year: u16, month: u8, day: u8, tz: Tz, coords: Option<Coordinate
     match LocalBadiDate::new(year as u8, badi_month, day as u16, tz, coords) {
         Ok(badi) => {
             let start = badi.start();
-            println!("Baha'i: {} {} {}", day, badi_month.transliteration(), year);
-            println!("Gregorian: {} (starts at sunset)", start.format("%Y-%m-%d %H:%M %Z"));
+            if fancy {
+                show_fancy_badi(&badi, start);
+            } else {
+                println!("Baha'i: {} {} {}", day, badi_month.transliteration(), year);
+                println!("Gregorian: {} (starts at sunset)", start.format("%Y-%m-%d %H:%M %Z"));
+            }
         }
         Err(e) => eprintln!("Error: {:?}", e),
     }
