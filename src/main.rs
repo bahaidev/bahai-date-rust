@@ -36,8 +36,12 @@ struct Cli {
     fancy: bool,
 
     /// Show a Neofetch-style progress view of the year
-    #[arg(short, long, global = true)]
-    progress: bool,
+    #[arg(short, long, global = true, num_args = 0..=1, default_missing_value = "all")]
+    progress: Option<String>,
+
+    /// Countdown to the next time bucket (e.g., "month", "year")
+    #[arg(short = 'c', long, visible_alias = "cd", global = true, num_args = 0..=1, default_missing_value = "month")]
+    countdown: Option<String>,
 }
 
 #[derive(Subcommand)]
@@ -91,8 +95,13 @@ fn main() {
     let lon = cli.lon.unwrap_or(DEFAULT_LONGITUDE);
     let coords = Coordinates::new(lat, lon);
 
-    if cli.progress {
-        show_progress(tz, coords.ok());
+    if let Some(entry) = cli.progress {
+        show_progress(tz, coords.ok(), &entry);
+        return;
+    }
+
+    if let Some(bucket) = cli.countdown {
+        show_countdown(tz, coords.ok(), &bucket);
         return;
     }
 
@@ -187,7 +196,7 @@ fn show_today(tz: Tz, coords: Option<Coordinates>) {
     }
 }
 
-fn show_progress(tz: Tz, coords: Option<Coordinates>) {
+fn show_progress(tz: Tz, coords: Option<Coordinates>, entry: &str) {
     let now = chrono::Utc::now().with_timezone(&tz);
     let badi = match LocalBadiDate::from_datetime(now, coords) {
         Ok(b) => b,
@@ -204,8 +213,8 @@ fn show_progress(tz: Tz, coords: Option<Coordinates>) {
     let month_progress = (badi.day() as f64 - 1.0 + day_progress) / 19.0;
 
     // For year progress, we need the start of the year (Naw-Ruz)
-    let year_start = LocalBadiDate::new(badi.year(), BadiMonth::Month(1), 1, tz, coords).unwrap().start();
-    let next_year_start = LocalBadiDate::new(badi.year() + 1, BadiMonth::Month(1), 1, tz, coords).unwrap().start();
+    let year_start = LocalBadiDate::new(badi.year() as u8, BadiMonth::Month(1), 1, tz, coords).unwrap().start();
+    let next_year_start = LocalBadiDate::new((badi.year() + 1) as u8, BadiMonth::Month(1), 1, tz, coords).unwrap().start();
     let year_progress = (now.timestamp() - year_start.timestamp()) as f64 / (next_year_start.timestamp() - year_start.timestamp()) as f64;
 
     let year_u16 = badi.year() as u16;
@@ -218,22 +227,73 @@ fn show_progress(tz: Tz, coords: Option<Coordinates>) {
     let vahid = ((year_u16 - 1) / 19) + 1;
     let kull_i_shay = ((year_u16 - 1) / 361) + 1;
 
-    println!("\x1B[2J\x1B[H"); // Clear screen
-    println!("{}", gum_style("Badi Year in Progress", "141", true));
-    println!("{}", "─".repeat(40));
+    if entry == "all" {
+        println!("\x1B[2J\x1B[H"); // Clear screen
+        println!("{}", gum_style("Badi Year in Progress", "141", true));
+        println!("{}", "─".repeat(40));
 
-    print_progress_bar("Day", day_progress, &format!("Day {}", badi.day()));
-    print_progress_bar("Month", month_progress, &badi.month().transliteration());
-    print_progress_bar("Year", year_progress, &format!("Year {}", badi.year()));
-    print_progress_bar("Vahid", vahid_progress, &format!("Vahid {}", vahid));
-    print_progress_bar("Epoch", kull_i_shay_progress, &format!("Kull-i-Shay {}", kull_i_shay));
+        print_fancy_progress_bar("Day", day_progress, &format!("Day {}", badi.day()));
+        print_fancy_progress_bar("Month", month_progress, &badi.month().transliteration());
+        print_fancy_progress_bar("Year", year_progress, &format!("Year {}", badi.year()));
+        print_fancy_progress_bar("Vahid", vahid_progress, &format!("Vahid {}", vahid));
+        print_fancy_progress_bar("Epoch", kull_i_shay_progress, &format!("Kull-i-Shay {}", kull_i_shay));
 
-    println!("\n{}", gum_style("Press Enter to dismiss...", "242", false));
-    let mut input = String::new();
-    let _ = std::io::stdin().read_line(&mut input);
+        println!("\n{}", gum_style("Press Enter to dismiss...", "242", false));
+        let mut input = String::new();
+        let _ = std::io::stdin().read_line(&mut input);
+    } else {
+        match entry.to_lowercase().as_str() {
+            "day" => print_plain_progress_bar("Day", day_progress, &format!("Day {}", badi.day())),
+            "month" => print_plain_progress_bar("Month", month_progress, &badi.month().transliteration()),
+            "year" => print_plain_progress_bar("Year", year_progress, &format!("Year {}", badi.year())),
+            "vahid" => print_plain_progress_bar("Vahid", vahid_progress, &format!("Vahid {}", vahid)),
+            "epoch" | "kull-i-shay" | "kullishay" => print_plain_progress_bar("Epoch", kull_i_shay_progress, &format!("Kull-i-Shay {}", kull_i_shay)),
+            _ => eprintln!("Unknown progress entry: {}", entry),
+        }
+    }
 }
 
-fn print_progress_bar(label: &str, progress: f64, value_text: &str) {
+fn show_countdown(tz: Tz, coords: Option<Coordinates>, bucket: &str) {
+    let now = chrono::Utc::now().with_timezone(&tz);
+    let badi = match LocalBadiDate::from_datetime(now, coords) {
+        Ok(b) => b,
+        Err(e) => {
+            eprintln!("Error: {:?}", e);
+            return;
+        }
+    };
+
+    match bucket.to_lowercase().as_str() {
+        "month" | "feast" => {
+            let (next_month, next_year) = match badi.month() {
+                BadiMonth::Month(19) => (BadiMonth::Month(1), (badi.year() + 1) as u8),
+                BadiMonth::Month(m) => (BadiMonth::Month(m + 1), badi.year() as u8),
+                BadiMonth::AyyamIHa => (BadiMonth::Month(19), badi.year() as u8),
+            };
+            let next_feast = LocalBadiDate::new(next_year, next_month, 1, tz, coords).unwrap();
+            let diff = (next_feast.start().date_naive() - badi.start().date_naive()).num_days();
+            println!("{}", diff);
+        }
+        "year" | "nawruz" | "naw-ruz" => {
+            let next_year_start = LocalBadiDate::new((badi.year() + 1) as u8, BadiMonth::Month(1), 1, tz, coords).unwrap();
+            let diff = (next_year_start.start().date_naive() - badi.start().date_naive()).num_days();
+            println!("{}", diff);
+        }
+        "vahid" => {
+            let next_vahid_year = ((((badi.year() as u16 - 1) / 19) + 1) * 19) + 1;
+            if next_vahid_year > 255 {
+                eprintln!("Error: Baha'i year {} exceeds the supported limit of 255.", next_vahid_year);
+                return;
+            }
+            let next_vahid_start = LocalBadiDate::new(next_vahid_year as u8, BadiMonth::Month(1), 1, tz, coords).unwrap();
+            let diff = (next_vahid_start.start().date_naive() - badi.start().date_naive()).num_days();
+            println!("{}", diff);
+        }
+        _ => eprintln!("Unknown countdown bucket: {}", bucket),
+    }
+}
+
+fn print_fancy_progress_bar(label: &str, progress: f64, value_text: &str) {
     let width = 50;
     let filled = (progress * width as f64).round() as usize;
     let empty = width - filled;
@@ -242,6 +302,20 @@ fn print_progress_bar(label: &str, progress: f64, value_text: &str) {
         "\x1B[38;5;99m{}\x1B[0m{}",
         "█".repeat(filled),
         "░".repeat(empty)
+    );
+    
+    println!("{:<10} [{}] {:>5.1}% ({})", label, bar, progress * 100.0, value_text);
+}
+
+fn print_plain_progress_bar(label: &str, progress: f64, value_text: &str) {
+    let width = 50;
+    let filled = (progress * width as f64).round() as usize;
+    let empty = width - filled;
+    
+    let bar = format!(
+        "{}{}",
+        "#".repeat(filled),
+        "-".repeat(empty)
     );
     
     println!("{:<10} [{}] {:>5.1}% ({})", label, bar, progress * 100.0, value_text);
