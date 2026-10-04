@@ -327,7 +327,7 @@ Each 19-year Váḥid cycle names its years; 19 Váḥids make up a Kull-i-Shay'
 ## Notes
 
 - The Baha'i day starts at **sunset**, not midnight
-- Default location is **Bahjí** (32.9434°N, 35.0924°E) for sunset calculations
+- Default location is [**Bahjí** (32.9434°N, 35.0924°E)](https://bahaipedia.org/Mansion_of_Bahj%C3%AD) for sunset calculations
 - Use `-l` and `-L` options to specify custom coordinates for your location
 
 ## License
