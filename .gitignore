@@ -27,8 +27,3 @@ Thumbs.db
 
 # Environment
 .env
-
-# Assistants
-
-.claude/
-.omc/
