@@ -4,6 +4,8 @@
 
 A command-line tool to convert between Gregorian and Badí' (Bahá'í) calendar dates, watch the Baha'i year progress, and count down to feasts and holy days. Works entirely offline.
 
+Dates print with month, weekday, and Váḥid-year names and their English meanings — plus the original Arabic/Persian scripts on request (`--arfa`) — or as a bare one-liner for widgets and scripts (`--text`).
+
 ## Installation
 
 ### Build from Source (recommended)
@@ -72,7 +74,7 @@ $ bahai-date --fancy
 
 ## Feature Flags
 
-All flags below are *global*: they work with any subcommand, before or after it. The flag groups go from simplest to most involved.
+All flags below are *global*: they work with any subcommand, before or after it. The groups, simplest first: script display (`--arabic`/`--persian`/`--arfa`), one-line output (`--text`/`--text-all`), pretty-printing (`--fancy`/`--progress`), and countdowns (`--countdown`).
 
 ### Name Scripts
 
@@ -91,6 +93,8 @@ Weekday: 'Idál (Justice · عدال)
 Year 181 Hubb (Love · حب) · Vahid 10 · Kull-i-Shay 1
 ...
 ```
+
+> The `holy-days` table keeps fixed-width columns, so it always prints plain month names regardless of these flags.
 
 ### One-Line Output
 
