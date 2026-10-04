@@ -29,6 +29,14 @@ cargo install --path . --force
 
 `--force` overwrites the older binary in `~/.cargo/bin`. Run `cargo update` first if you also want refreshed dependencies (the committed `Cargo.lock` pins working versions).
 
+#### Man Page
+
+The build installs this manual page too (see [`build.rs`](build.rs)): it lands in `~/.cargo/share/man/man1/bahai-date.1` and `~/.local/share/man/man1/bahai-date.1`, so `man bahai-date` just works on most setups. If your `man` doesn't search `~/.cargo/share/man`, add it:
+
+```bash
+export MANPATH="$HOME/.cargo/share/man:$MANPATH"   # e.g. in ~/.zshrc
+```
+
 ### Pre-built Binaries
 
 Manually built, not produced by CI — use only if you can't install Rust. Grab them from the [releases](https://forge.mitch.science/mitcheffendi/bahai-date-rust/releases) page and check the commit they were cut from.

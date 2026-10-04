@@ -1,0 +1,387 @@
+.TH BAHAI-DATE 1 "October 2026" "bahai-date 0.1.0" "User Commands"
+.SH NAME
+bahai-date \- convert between Gregorian and Baha'i (Badi) calendar dates
+.SH SYNOPSIS
+.B bahai-date
+.RI [ OPTIONS ]
+.RI [ COMMAND ]
+.PP
+Available commands:
+.BR today " (the default when no command is given),"
+.BR to\-badi ,
+.BR to\-greg ,
+.BR next\-holy\-day ,
+.BR holy\-days .
+.SH DESCRIPTION
+.B bahai-date
+converts between Gregorian and Badi (Baha'i) calendar dates, watches the
+Baha'i year progress, and counts down to feasts and holy days. It works
+entirely offline.
+.PP
+The Baha'i day begins at
+.B sunset,
+not midnight, so dates roll over in the evening. Sunset is computed for the
+coordinates given with
+.B \-\-lat
+and
+.B \-\-lon
+(default: Bahji, 32.9434 N, 35.0924 E) in the timezone given with
+.B \-\-timezone
+(default: system timezone, falling back to Asia/Jerusalem).
+.PP
+Date output always includes the month, weekday, and Vahid-year names with
+their English meanings. The original Arabic and Persian scripts can be added
+with
+.BR \-\-arabic ,
+.BR \-\-persian ,
+or
+.B \-\-arfa
+(see
+.BR "NAME SCRIPTS" ).
+.PP
+With no subcommand,
+.B today
+is assumed.
+.SH EXAMPLES
+.TP
+Today's date:
+.nf
+    $ bahai-date
+    9 Mashíyyat (Will) 183
+    Weekday: Kamál (Perfection)
+    Year 183 Javáb (Answer) · Vahid 10 · Kull-i-Shay 1
+    Gregorian: 2026-10-04 17:29 EDT
+    Timezone: America/New_York
+.fi
+.TP
+Convert a Gregorian date to Baha'i (the time of day matters, since days
+start at sunset \- 18:30 after Naw\-Ruz sunset is already the 2nd of the year):
+.nf
+    $ bahai-date to\-badi \-Y 2024 \-M 3 \-D 20 \-H 18 \-I 30 \-t Asia/Jerusalem
+    2 Bahá (Splendor) 181
+    Weekday: Istijlál (Majesty)
+    Year 181 Hubb (Love) · Vahid 10 · Kull-i-Shay 1
+    Gregorian: 2024-03-20 18:30 IST
+    Timezone: Asia/Jerusalem
+.fi
+.TP
+Convert a Baha'i date to Gregorian:
+.nf
+    $ bahai-date to\-greg \-Y 181 \-M 1 \-D 1 \-t Asia/Jerusalem
+    1 Bahá (Splendor) 181
+    Weekday: 'Idál (Justice)
+    Year 181 Hubb (Love) · Vahid 10 · Kull-i-Shay 1
+    Gregorian: 2024-03-19 17:50 IST (starts at sunset)
+    Timezone: Asia/Jerusalem
+    Naw-Rúz (work suspended)
+    Nineteen Day Feast of Bahá
+.fi
+.TP
+One line for widgets and scripts:
+.nf
+    $ bahai-date \-\-text
+    9 Mashíyyat (Will) 183
+.fi
+.TP
+Days until the next Nineteen Day Feast:
+.nf
+    $ bahai-date \-\-countdown feast
+    11 days
+.fi
+.SH GLOBAL OPTIONS
+All flags are global: they work with any subcommand, before or after it.
+.TP
+.B \-t, \-\-timezone \fITIMEZONE\fR
+IANA timezone, e.g. America/New_York (spaces are OK: America/New York).
+Default: system timezone, falling back to Asia/Jerusalem.
+.TP
+.B \-l, \-\-lat \fILAT\fR
+Latitude for sunset calculation. Default: 32.9434 (Bahji).
+.TP
+.B \-L, \-\-lon \fILON\fR
+Longitude for sunset calculation. Default: 35.0924 (Bahji).
+.TP
+.B \-\-arabic
+Include Arabic-script names of months, weekdays, and Vahid years.
+.TP
+.B \-\-persian
+Include Persian-script names of months, weekdays, and Vahid years.
+.TP
+.B \-\-arfa
+Include both Arabic- and Persian-script names. Identical spellings are
+shown once.
+.TP
+.B \-\-text
+Print just the date as a single plain line \- no line breaks, no box, no
+emoji, no color. Intended for widgets, Emacs, and other command consumers.
+.TP
+.B \-\-text\-all
+Like
+.BR \-\-text ,
+but includes weekday, Vahid year, cycle position, and any annotations.
+Cannot be combined with
+.BR \-\-text .
+.TP
+.B \-f, \-\-fancy
+Emoji and color output (uses
+.BR gum (1)
+when available) for today, to\-badi, to\-greg, next\-holy\-day, and holy\-days.
+.TP
+.B \-p, \-\-progress \fR[\fIENTRY\fR]
+With an ENTRY (day, month, year, vahid, epoch; aliases kull-i-shay,
+kullishay), print a single ASCII progress bar for that span. Bare, or with
+.BR all ,
+clear the screen and show a full dashboard of all five spans plus the next
+holy day, then wait for Enter.
+.TP
+.B \-c, \-\-countdown \fR[\fIBUCKET\fR]
+With a BUCKET (day, feast or month, holy-day or holyday, year, nawruz or
+naw\-ruz, vahid; alias
+.BR \-\-cd ),
+print one plain line with the time remaining. Bare, or with
+.BR all ,
+print an annotated summary of all buckets. Days until Ayyam-i-Ha, years
+until the next Vahid, and Vahids until the next Kull-i-Shay are included.
+.TP
+.B \-h, \-\-help
+Print help.
+.TP
+.B \-V, \-\-version
+Print version.
+.SH SUBCOMMANDS
+.TP
+.B today
+Today's Baha'i date (the default when no subcommand is given).
+.TP
+.B to\-badi
+Convert a Gregorian date to Baha'i.
+Options:
+.B \-Y, \-\-year
+(Gregorian year),
+.B \-M, \-\-month
+(1\-12),
+.B \-D, \-\-day
+(1\-31),
+.B \-H, \-\-hour
+(0\-23, default 12),
+.B \-I, \-\-minute
+(0\-59, default 0).
+.TP
+.B to\-greg
+Convert a Baha'i date to Gregorian.
+Options:
+.B \-Y, \-\-year
+(Baha'i year, e.g. 181),
+.B \-M, \-\-month
+(0 = Ayyam-i-Ha, 1\-19),
+.B \-D, \-\-day
+(1\-19).
+.TP
+.B next\-holy\-day
+Next upcoming holy day: name, Badi and Gregorian dates, days away, and
+celebration time.
+.TP
+.B holy\-days
+List all holy days for the current Baha'i year, chronologically, with work
+suspension status.
+.SH OUTPUT MODES
+.TP
+.B Plain (default)
+Line-oriented and stable for scripts: the Baha'i date, the weekday name, the
+year with its position in the Vahid and Kull-i-Shay cycles, the Gregorian
+date/time, and the timezone, followed by any annotations (holy day,
+Ayyam-i-Ha day, Feast).
+.TP
+.B \-\-text / \-\-text\-all
+A single line with parts joined by
+.RB ` \(m7 ',
+for widgets and scripts.
+.B \-\-text
+prints only the date;
+.B \-\-text\-all
+adds weekday, Vahid year, cycles, and annotations. Both override
+.BR \-\-fancy .
+.TP
+.B \-\-fancy
+Rounded box via
+.BR gum (1)
+with month emoji and highlighted holy days, Ayyam-i-Ha, and Feast days.
+.TP
+Precedence:
+.B \-\-progress
+wins over
+.BR \-\-countdown ,
+which wins over
+.B \-\-text / \-\-text\-all ,
+which win over
+.BR \-\-fancy .
+.SH NAME SCRIPTS
+Month, weekday, and Vahid-year names always print with their English
+meanings.
+.B \-\-arabic
+and
+.B \-\-persian
+add the respective scripts;
+.B \-\-arfa
+adds both. The
+.B holy\-days
+table keeps fixed-width columns and always uses plain month names.
+.SH THE BADI CALENDAR
+The Badi calendar has 19 months of 19 days each, the intercalary days of
+Ayyam-i-Ha (4\-5 days between months 18 and 19), and years grouped into
+19\-year Vahid cycles; 19 Vahids make up a Kull-i-Shay (361 years). Naw-Ruz
+(the new year) falls on March 20\-21. The Badi day starts at sunset, so each
+weekday begins the evening before its Gregorian counterpart (Jalal begins at
+Friday sunset).
+.SS Months (19 days each)
+.TP
+.B 1  Bahá
+Splendor \(m7 بهاء / بهاء
+.TP
+.B 2  Jalál
+Glory \(m7 جلال / جلال
+.TP
+.B 3  Jamál
+Beauty \(m7 جمال / جمال
+.TP
+.B 4  'Azamat
+Grandeur \(m7 عظمة / عظمت
+.TP
+.B 5  Núr
+Light \(m7 نور / نور
+.TP
+.B 6  Rahmat
+Mercy \(m7 رحمة / رحمت
+.TP
+.B 7  Kalimát
+Words \(m7 كلمات / کلمات
+.TP
+.B 8  Kamál
+Perfection \(m7 كمال / کمال
+.TP
+.B 9  Asmá'
+Names \(m7 اسماء / اسماء
+.TP
+.B 10  'Izzat
+Might \(m7 عزة / عزت
+.TP
+.B 11  Mashíyyat
+Will \(m7 مشيئة / مشيت
+.TP
+.B 12  'Ilm
+Knowledge \(m7 علم / علم
+.TP
+.B 13  Qudrat
+Power \(m7 قدرة / قدرت
+.TP
+.B 14  Qawl
+Speech \(m7 قول / قول
+.TP
+.B 15  Masá'il
+Questions \(m7 مسائل / مسائل
+.TP
+.B 16  Sharaf
+Honor \(m7 شرف / شرف
+.TP
+.B 17  Sultán
+Sovereignty \(m7 سلطان / سلطان
+.TP
+.B 18  Mulk
+Dominion \(m7 ملك / ملک
+.TP
+.B 19  'Alá'
+Loftiness \(m7 علاء / علاء
+.SS Weekdays
+.TP
+.B Saturday  Jalál
+Glory \(m7 جلال / جلال
+.TP
+.B Sunday  Jamál
+Beauty \(m7 جمال / جمال
+.TP
+.B Monday  Kamál
+Perfection \(m7 كمال / کمال
+.TP
+.B Tuesday  Fidál
+Grace \(m7 فضال / فضال
+.TP
+.B Wednesday  'Idál
+Justice \(m7 عدال / عدال
+.TP
+.B Thursday  Istijlál
+Majesty \(m7 استجلال / استجلال
+.TP
+.B Friday  Istiqlál
+Independence \(m7 استقلال / استقلال
+.SS Vahid cycle years
+Year 1 B.E. began the first Vahid of the first Kull-i-Shay in 1844.
+.TP
+.B 1  Alif
+A (The Letter) \(m7 الف / الف
+.TP
+.B 2  Bá'
+B (The Letter) \(m7 باء / باء
+.TP
+.B 3  Ab
+Father \(m7 اب / اب
+.TP
+.B 4  Dál
+D (The Letter) \(m7 دال / دال
+.TP
+.B 5  Báb
+Gate \(m7 باب / باب
+.TP
+.B 6  Váv
+V (The Letter) \(m7 واو / واو
+.TP
+.B 7  Abad
+Eternity \(m7 ابد / ابد
+.TP
+.B 8  Jád
+Generosity \(m7 جاد / جاد
+.TP
+.B 9  Bahá
+Splendor \(m7 بهاء / بهاء
+.TP
+.B 10  Hubb
+Love \(m7 حب / حب
+.TP
+.B 11  Bahháj
+Delightful \(m7 بهاج / بهاج
+.TP
+.B 12  Javáb
+Answer \(m7 جواب / جواب
+.TP
+.B 13  Ahad
+Single \(m7 احد / احد
+.TP
+.B 14  Vahháb
+Bountiful \(m7 وهاب / وهاب
+.TP
+.B 15  Vidád
+Affection \(m7 وداد / وداد
+.TP
+.B 16  Badí'
+Beginning \(m7 بديع / بديع
+.TP
+.B 17  Bahí
+Luminous \(m7 بهي / بهي
+.TP
+.B 18  Abhá
+Most Luminous \(m7 ابهى / ابهى
+.TP
+.B 19  Váhid
+Unity \(m7 واحد / واحد
+.SH FILES
+.TP
+.I ~/.cargo/bin/bahai-date
+The installed binary (cargo install).
+.TP
+.I ~/.cargo/share/man/man1/bahai-date.1
+This manual page, installed at build time when the man directory is
+writable.
+.SH SEE ALSO
+Project home:
+.I https://forge.mitch.science/mitcheffendi/bahai-date-rust
+.SH COPYRIGHT
+Released under the ISC License. Copyright 2019\-2025 dragfyre.
