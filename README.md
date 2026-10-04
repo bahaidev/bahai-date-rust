@@ -36,9 +36,27 @@ Manually built, not produced by CI — use only if you can't install Rust. Grab 
 ```bash
 # Today's date (no arguments needed)
 $ bahai-date
-9 Mas͟híyyat 183
-Gregorian: 2026-10-04 16:21 EDT
+9 Mashíyyat (Will) 183
+Weekday: Kamál (Perfection)
+Year 183 Javáb (Answer) · Vahid 10 · Kull-i-Shay 1
+Gregorian: 2026-10-04 17:29 EDT
 Timezone: America/New_York
+
+# Add the Arabic and Persian scripts (--arabic, --persian, or --arfa for both)
+$ bahai-date --arfa
+9 Mashíyyat (Will · مشيئة · مشيت) 183
+Weekday: Kamál (Perfection · كمال · کمال)
+Year 183 Javáb (Answer · جواب) · Vahid 10 · Kull-i-Shay 1
+Gregorian: 2026-10-04 17:29 EDT
+Timezone: America/New_York
+
+# Single line for widgets, Emacs, and scripts (--text = just the date;
+# --text-all adds weekday, Vahid year, and cycles)
+$ bahai-date --text
+9 Mashíyyat (Will) 183
+
+$ bahai-date --text-all
+9 Mashíyyat (Will) 183 · Kamál (Perfection) · Year 183 Javáb (Answer) · Vahid 10 · Kull-i-Shay 1
 
 # Days until the next Nineteen Day Feast
 $ bahai-date --countdown feast
@@ -55,6 +73,49 @@ $ bahai-date --fancy
 ## Feature Flags
 
 All flags below are *global*: they work with any subcommand, before or after it. The flag groups go from simplest to most involved.
+
+### Name Scripts
+
+Month, weekday, and Váḥid-year names always print with their English meanings; these flags add the original scripts:
+
+| Flag | What it does |
+|------|--------------|
+| `--arabic` | Include the Arabic-script name |
+| `--persian` | Include the Persian-script name |
+| `--arfa` | Include both Arabic and Persian scripts (identical spellings are shown once) |
+
+```bash
+$ bahai-date to-greg -Y 181 -M 1 -D 1 --arfa
+1 Bahá (Splendor · بهاء) 181
+Weekday: 'Idál (Justice · عدال)
+Year 181 Hubb (Love · حب) · Vahid 10 · Kull-i-Shay 1
+...
+```
+
+### One-Line Output
+
+| Flag | What it does |
+|------|--------------|
+| `--text` | Print just the date as a single plain line — no line breaks, no box, no emoji, no color — for widgets, Emacs, waybar, and other command consumers |
+| `--text-all` | Same single line, plus weekday, Váḥid year, cycle position, and any annotations |
+
+For daily glance value, `--text` gives what a Gregorian calendar would — the date and nothing else. `--text-all` is the whole picture in one line. The two flags are mutually exclusive.
+
+```bash
+$ bahai-date --text
+9 Mashíyyat (Will) 183
+
+$ bahai-date --text-all
+9 Mashíyyat (Will) 183 · Kamál (Perfection) · Year 183 Javáb (Answer) · Vahid 10 · Kull-i-Shay 1
+
+$ bahai-date to-greg -Y 181 -M 1 -D 1 -t Asia/Jerusalem --text
+1 Bahá (Splendor) 181 · Gregorian: 2024-03-19 17:50 IST (starts at sunset)
+
+$ bahai-date next-holy-day --text
+Birth of the Báb · 7 Qudrat (Power) 183 · 2026-11-09 09:42 EST · 36 days from now
+```
+
+Both override `--fancy`; `--progress` still wins if given. They combine freely with `--arabic`, `--persian`, and `--arfa`.
 
 ### Pretty-Printing (TUI)
 
@@ -114,7 +175,7 @@ If both `-p` and `-c` are given, the progress view wins.
 
 ### Programmatic Use
 
-Plain (non-`--fancy`) output is line-oriented and stable, suitable for scripts: the Baha'i date, the Gregorian date/time, and the timezone — followed by any annotations (holy day, Ayyám-i-Há day, Feast).
+Plain (non-`--fancy`) output is line-oriented and stable, suitable for scripts: the Baha'i date, the weekday name, the year with its position in the Váḥid and Kull-i-Shay cycles, the Gregorian date/time, and the timezone — followed by any annotations (holy day, Ayyám-i-Há day, Feast). For a strict one-line string (widgets, Emacs), use [`--text`](#one-line-output).
 
 | Command | Purpose |
 |---------|---------|
@@ -131,6 +192,11 @@ Global options:
 | `-t, --timezone <TIMEZONE>` | IANA timezone, e.g. `America/New_York` (spaces are OK: `America/New York`). Default: system timezone, falling back to `Asia/Jerusalem` |
 | `-l, --lat <LAT>` | Latitude for sunset calculation. Default: Bahjí (32.9434) |
 | `-L, --lon <LON>` | Longitude for sunset calculation. Default: Bahjí (35.0924) |
+| `--arabic` | Include Arabic-script names (month, weekday, Váḥid year) |
+| `--persian` | Include Persian-script names |
+| `--arfa` | Include both Arabic- and Persian-script names |
+| `--text` | Single-line output: just the date — no line breaks, no emoji, no color |
+| `--text-all` | Single-line output with weekday, Váḥid year, cycles, and annotations |
 | `-h, --help` | Print help |
 | `-V, --version` | Print version |
 
@@ -140,14 +206,18 @@ Examples pin `-t Asia/Jerusalem` so the output is reproducible anywhere; omit it
 
 ```bash
 $ bahai-date to-badi -Y 2017 -M 12 -D 5 -t Asia/Jerusalem
-14 Qawl 174
+14 Qawl (Speech) 174
+Weekday: Fidál (Grace)
+Year 174 Ab (Father) · Vahid 10 · Kull-i-Shay 1
 Gregorian: 2017-12-05 12:00 IST
 Timezone: Asia/Jerusalem
 
 # The time of day matters: days start at sunset, so 18:30 on the day
 # after Naw-Ruz sunset is already the 2nd day of the year:
 $ bahai-date to-badi -Y 2024 -M 3 -D 20 -H 18 -I 30 -t Asia/Jerusalem
-2 Bahá 181
+2 Bahá (Splendor) 181
+Weekday: Istijlál (Majesty)
+Year 181 Hubb (Love) · Vahid 10 · Kull-i-Shay 1
 Gregorian: 2024-03-20 18:30 IST
 Timezone: Asia/Jerusalem
 ```
@@ -164,8 +234,13 @@ Timezone: Asia/Jerusalem
 
 ```bash
 $ bahai-date to-greg -Y 181 -M 1 -D 1 -t Asia/Jerusalem
-Baha'i: 1 Bahá 181
+1 Bahá (Splendor) 181
+Weekday: 'Idál (Justice)
+Year 181 Hubb (Love) · Vahid 10 · Kull-i-Shay 1
 Gregorian: 2024-03-19 17:50 IST (starts at sunset)
+Timezone: Asia/Jerusalem
+🌺 Naw-Rúz (work suspended)
+Nineteen Day Feast of Bahá
 ```
 
 | Option | Description |
@@ -183,27 +258,67 @@ The Badí' calendar consists of:
 
 ### Month Names
 
-| # | Name | Meaning |
-|---|------|---------|
-| 1 | Bahá | Splendor |
-| 2 | Jalál | Glory |
-| 3 | Jamál | Beauty |
-| 4 | 'Azamat | Grandeur |
-| 5 | Núr | Light |
-| 6 | Rahmat | Mercy |
-| 7 | Kalimát | Words |
-| 8 | Kamál | Perfection |
-| 9 | Asmá' | Names |
-| 10 | 'Izzat | Might |
-| 11 | Mashíyyat | Will |
-| 12 | 'Ilm | Knowledge |
-| 13 | Qudrat | Power |
-| 14 | Qawl | Speech |
-| 15 | Masá'il | Questions |
-| 16 | Sharaf | Honor |
-| 17 | Sultán | Sovereignty |
-| 18 | Mulk | Dominion |
-| 19 | 'Alá' | Loftiness |
+| # | Name | Meaning | Arabic Script | Persian Script |
+|---|------|---------|---------------|----------------|
+| 1 | Bahá | Splendor | بهاء | بهاء |
+| 2 | Jalál | Glory | جلال | جلال |
+| 3 | Jamál | Beauty | جمال | جمال |
+| 4 | 'Azamat | Grandeur | عظمة | عظمت |
+| 5 | Núr | Light | نور | نور |
+| 6 | Rahmat | Mercy | رحمة | رحمت |
+| 7 | Kalimát | Words | كلمات | کلمات |
+| 8 | Kamál | Perfection | كمال | کمال |
+| 9 | Asmá' | Names | اسماء | اسماء |
+| 10 | 'Izzat | Might | عزة | عزت |
+| 11 | Mashíyyat | Will | مشيئة | مشيت |
+| 12 | 'Ilm | Knowledge | علم | علم |
+| 13 | Qudrat | Power | قدرة | قدرت |
+| 14 | Qawl | Speech | قول | قول |
+| 15 | Masá'il | Questions | مسائل | مسائل |
+| 16 | Sharaf | Honor | شرف | شرف |
+| 17 | Sultán | Sovereignty | سلطان | سلطان |
+| 18 | Mulk | Dominion | ملك | ملک |
+| 19 | 'Alá' | Loftiness | علاء | علاء |
+
+### Weekday Names
+
+The Badi day starts at sunset, so each weekday begins the evening before its Gregorian counterpart (Jalál begins at Friday sunset).
+
+| English Day | Name | Meaning | Arabic Script | Persian Script |
+|-------------|------|---------|---------------|----------------|
+| Saturday | Jalál | Glory | جلال | جلال |
+| Sunday | Jamál | Beauty | جمال | جمال |
+| Monday | Kamál | Perfection | كمال | کمال |
+| Tuesday | Fidál | Grace | فضال | فضال |
+| Wednesday | 'Idál | Justice | عدال | عدال |
+| Thursday | Istijlál | Majesty | استجلال | استجلال |
+| Friday | Istiqlál | Independence | استقلال | استقلال |
+
+### Váḥid Cycle Years
+
+Each 19-year Váḥid cycle names its years; 19 Váḥids make up a Kull-i-Shay' (361 years). Year 1 B.E. began the first Váḥid of the first Kull-i-Shay' in 1844.
+
+| Year # | Name | Meaning | Arabic Script | Persian Script |
+|--------|------|---------|---------------|----------------|
+| 1 | Alif | A (The Letter) | الف | الف |
+| 2 | Bá' | B (The Letter) | باء | باء |
+| 3 | Ab | Father | اب | اب |
+| 4 | Dál | D (The Letter) | دال | دال |
+| 5 | Báb | Gate | باب | باب |
+| 6 | Váv | V (The Letter) | واو | واو |
+| 7 | Abad | Eternity | ابد | ابد |
+| 8 | Jád | Generosity | جاد | جاد |
+| 9 | Bahá | Splendor | بهاء | بهاء |
+| 10 | Hubb | Love | حب | حب |
+| 11 | Bahháj | Delightful | بهاج | بهاج |
+| 12 | Javáb | Answer | جواب | جواب |
+| 13 | Ahad | Single | احد | احد |
+| 14 | Vahháb | Bountiful | وهاب | وهاب |
+| 15 | Vidád | Affection | وداد | وداد |
+| 16 | Badí' | Beginning | بديع | بديع |
+| 17 | Bahí | Luminous | بهي | بهي |
+| 18 | Abhá | Most Luminous | ابهى | ابهى |
+| 19 | Váhid | Unity | واحد | واحد |
 
 ## Notes
 
