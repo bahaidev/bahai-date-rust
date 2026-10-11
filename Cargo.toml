@@ -1,6 +1,6 @@
 [package]
 name = "bahai-date"
-version = "0.1.0"
+version = "0.4.0"
 edition = "2021"
 description = "Baha'i (Badi) date converter CLI"
 license = "ISC"

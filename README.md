@@ -210,7 +210,7 @@ Global options:
 | `--text` | Single-line output: just the date — no line breaks, no emoji, no color |
 | `--text-all` | Single-line output with weekday, Váḥid year, cycles, and annotations |
 | `-h, --help` | Print help |
-| `-V, --version` | Print version |
+|-V, --version|Print version (V4)
 
 #### `to-badi`
 
