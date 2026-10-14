@@ -30,8 +30,8 @@ and
 (default: system timezone, falling back to Asia/Jerusalem).
 .PP
 Date output always includes the month, weekday, and Vahid-year names with
-their English meanings. The original Arabic and Persian scripts can be added
-with
+their English meanings, and holy days with their English names. The original
+Arabic and Persian scripts can be added with
 .BR \-\-arabic ,
 .BR \-\-persian ,
 or
@@ -102,10 +102,10 @@ Latitude for sunset calculation. Default: 32.9434 (Bahji).
 Longitude for sunset calculation. Default: 35.0924 (Bahji).
 .TP
 .B \-\-arabic
-Include Arabic-script names of months, weekdays, and Vahid years.
+Include Arabic-script names of months, weekdays, Vahid years, and holy days.
 .TP
 .B \-\-persian
-Include Persian-script names of months, weekdays, and Vahid years.
+Include Persian-script names of months, weekdays, Vahid years, and holy days.
 .TP
 .B \-\-arfa
 Include both Arabic- and Persian-script names. Identical spellings are
@@ -218,15 +218,16 @@ which win over
 .BR \-\-fancy .
 .SH NAME SCRIPTS
 Month, weekday, and Vahid-year names always print with their English
-meanings.
+meanings, and holy days with their English names.
 .B \-\-arabic
 and
 .B \-\-persian
-add the respective scripts;
+add the respective scripts to all of them;
 .B \-\-arfa
 adds both. The
 .B holy\-days
-table keeps fixed-width columns and always uses plain month names.
+table keeps fixed-width columns: its month column always uses plain month
+names, and the holy day column widens to fit the scripts.
 .SH THE BADI CALENDAR
 The Badi calendar has 19 months of 19 days each, the intercalary days of
 Ayyam-i-Ha (4\-5 days between months 18 and 19), and years grouped into
@@ -261,13 +262,13 @@ Words \(m7 كلمات / کلمات
 Perfection \(m7 كمال / کمال
 .TP
 .B 9  Asmá'
-Names \(m7 اسماء / اسماء
+Names \(m7 أسماء / اسماء
 .TP
 .B 10  'Izzat
-Might \(m7 عزة / عزت
+Might \(m7 عزّة / عزّت
 .TP
 .B 11  Mashíyyat
-Will \(m7 مشيئة / مشيت
+Will \(m7 مشيّة / مشیّت
 .TP
 .B 12  'Ilm
 Knowledge \(m7 علم / علم
@@ -318,13 +319,13 @@ Independence \(m7 استقلال / استقلال
 Year 1 B.E. began the first Vahid of the first Kull-i-Shay in 1844.
 .TP
 .B 1  Alif
-A (The Letter) \(m7 الف / الف
+A (The Letter) \(m7 ألف / الف
 .TP
 .B 2  Bá'
 B (The Letter) \(m7 باء / باء
 .TP
 .B 3  Ab
-Father \(m7 اب / اب
+Father \(m7 أب / اب
 .TP
 .B 4  Dál
 D (The Letter) \(m7 دال / دال
@@ -336,7 +337,7 @@ Gate \(m7 باب / باب
 V (The Letter) \(m7 واو / واو
 .TP
 .B 7  Abad
-Eternity \(m7 ابد / ابد
+Eternity \(m7 أبد / ابد
 .TP
 .B 8  Jád
 Generosity \(m7 جاد / جاد
@@ -345,10 +346,10 @@ Generosity \(m7 جاد / جاد
 Splendor \(m7 بهاء / بهاء
 .TP
 .B 10  Hubb
-Love \(m7 حب / حب
+Love \(m7 حب / حبّ
 .TP
 .B 11  Bahháj
-Delightful \(m7 بهاج / بهاج
+Delightful \(m7 بهاج / بهّاج
 .TP
 .B 12  Javáb
 Answer \(m7 جواب / جواب
@@ -357,22 +358,58 @@ Answer \(m7 جواب / جواب
 Single \(m7 احد / احد
 .TP
 .B 14  Vahháb
-Bountiful \(m7 وهاب / وهاب
+Bountiful \(m7 وهاب / وهّاب
 .TP
 .B 15  Vidád
 Affection \(m7 وداد / وداد
 .TP
 .B 16  Badí'
-Beginning \(m7 بديع / بديع
+Beginning \(m7 بديع / بدیع
 .TP
 .B 17  Bahí
-Luminous \(m7 بهي / بهي
+Luminous \(m7 بهي / بهی
 .TP
 .B 18  Abhá
-Most Luminous \(m7 ابهى / ابهى
+Most Luminous \(m7 ابهى / ابهی
 .TP
 .B 19  Váhid
 Unity \(m7 واحد / واحد
+.SS Holy days
+Listed in the order they fall in the Badi year; the three Ridvan days are
+separate observances.
+.TP
+.B Naw-Rúz
+عيد النَّيروز / عید نوروز
+.TP
+.B 1st day of Riḍván
+اليوم الأول من عيد الرِّضوان / روز اوّل عید رضوان
+.TP
+.B 9th day of Riḍván
+اليوم التاسع من عيد الرِّضوان / روز نهم عید رضوان
+.TP
+.B 12th day of Riḍván
+اليوم الثاني عشر من عيد الرِّضوان / روز دوازدهم عید رضوان
+.TP
+.B Declaration of the Báb
+يوم إعلان دعوة حضرة الباب / اظهار امر حضرت باب
+.TP
+.B Ascension of Bahá’u’lláh
+يوم صعود حضرة بهاء الله / صعود حضرت بهاءالله
+.TP
+.B Martyrdom of the Báb
+يوم استشهاد حضرة الباب / شهادت حضرت باب
+.TP
+.B Birth of the Báb
+يوم ولادة حضرة الباب / تولّد حضرت باب
+.TP
+.B Birth of Bahá’u’lláh
+يوم ولادة حضرة بهاء الله / تولّد حضرت بهاءالله
+.TP
+.B Day of the Covenant
+يوم الميثاق / روز عهد و میثاق
+.TP
+.B Ascension of ‘Abdu’l-Bahá
+يوم صعود حضرة عبد البهاء / صعود حضرت عبدالبهاء
 .SH FILES
 .TP
 .I ~/.cargo/bin/bahai-date

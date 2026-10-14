@@ -4,7 +4,7 @@
 
 A command-line tool to convert between Gregorian and Badí' (Bahá'í) calendar dates, watch the Baha'i year progress, and count down to feasts and holy days. Works entirely offline.
 
-Dates print with month, weekday, and Váḥid-year names and their English meanings — plus the original Arabic/Persian scripts on request (`--arfa`) — or as a bare one-liner for widgets and scripts (`--text`).
+Dates print with month, weekday, and Váḥid-year names and their English meanings, and holy days with their English names — plus the original Arabic/Persian scripts on request (`--arfa`) — or as a bare one-liner for widgets and scripts (`--text`).
 
 ## Installation
 
@@ -54,7 +54,7 @@ Timezone: America/New_York
 
 # Add the Arabic and Persian scripts (--arabic, --persian, or --arfa for both)
 $ bahai-date --arfa
-9 Mashíyyat (Will · مشيئة · مشيت) 183
+9 Mashíyyat (Will · مشيّة · مشیّت) 183
 Weekday: Kamál (Perfection · كمال · کمال)
 Year 183 Javáb (Answer · جواب) · Vahid 10 · Kull-i-Shay 1
 Gregorian: 2026-10-04 17:29 EDT
@@ -86,23 +86,23 @@ All flags below are *global*: they work with any subcommand, before or after it.
 
 ### Name Scripts
 
-Month, weekday, and Váḥid-year names always print with their English meanings; these flags add the original scripts:
+Month, weekday, and Váḥid-year names always print with their English meanings, and holy days with their English names; these flags add the original scripts:
 
 | Flag | What it does |
 |------|--------------|
-| `--arabic` | Include the Arabic-script name |
-| `--persian` | Include the Persian-script name |
+| `--arabic` | Include the Arabic-script name (months, weekdays, Váḥid years, and holy days) |
+| `--persian` | Include the Persian-script name (months, weekdays, Váḥid years, and holy days) |
 | `--arfa` | Include both Arabic and Persian scripts (identical spellings are shown once) |
 
 ```bash
 $ bahai-date to-greg -Y 181 -M 1 -D 1 --arfa
 1 Bahá (Splendor · بهاء) 181
 Weekday: 'Idál (Justice · عدال)
-Year 181 Hubb (Love · حب) · Vahid 10 · Kull-i-Shay 1
+Year 181 Hubb (Love · حب · حبّ) · Vahid 10 · Kull-i-Shay 1
 ...
 ```
 
-> The `holy-days` table keeps fixed-width columns, so it always prints plain month names regardless of these flags.
+> The `holy-days` table keeps fixed-width columns: its month column always prints the plain English month name, and the holy day column widens to fit the scripts when these flags are used.
 
 ### One-Line Output
 
@@ -204,8 +204,8 @@ Global options:
 | `-t, --timezone <TIMEZONE>` | IANA timezone, e.g. `America/New_York` (spaces are OK: `America/New York`). Default: system timezone, falling back to `Asia/Jerusalem` |
 | `-l, --lat <LAT>` | Latitude for sunset calculation. Default: Bahjí (32.9434) |
 | `-L, --lon <LON>` | Longitude for sunset calculation. Default: Bahjí (35.0924) |
-| `--arabic` | Include Arabic-script names (month, weekday, Váḥid year) |
-| `--persian` | Include Persian-script names |
+| `--arabic` | Include Arabic-script names (month, weekday, Váḥid year, holy day) |
+| `--persian` | Include Persian-script names (month, weekday, Váḥid year, holy day) |
 | `--arfa` | Include both Arabic- and Persian-script names |
 | `--text` | Single-line output: just the date — no line breaks, no emoji, no color |
 | `--text-all` | Single-line output with weekday, Váḥid year, cycles, and annotations |
@@ -280,9 +280,9 @@ The Badí' calendar consists of:
 | 6 | Rahmat | Mercy | رحمة | رحمت |
 | 7 | Kalimát | Words | كلمات | کلمات |
 | 8 | Kamál | Perfection | كمال | کمال |
-| 9 | Asmá' | Names | اسماء | اسماء |
-| 10 | 'Izzat | Might | عزة | عزت |
-| 11 | Mashíyyat | Will | مشيئة | مشيت |
+| 9 | Asmá' | Names | أسماء | اسماء |
+| 10 | 'Izzat | Might | عزّة | عزّت |
+| 11 | Mashíyyat | Will | مشيّة | مشیّت |
 | 12 | 'Ilm | Knowledge | علم | علم |
 | 13 | Qudrat | Power | قدرة | قدرت |
 | 14 | Qawl | Speech | قول | قول |
@@ -312,25 +312,43 @@ Each 19-year Váḥid cycle names its years; 19 Váḥids make up a Kull-i-Shay'
 
 | Year # | Name | Meaning | Arabic Script | Persian Script |
 |--------|------|---------|---------------|----------------|
-| 1 | Alif | A (The Letter) | الف | الف |
+| 1 | Alif | A (The Letter) | ألف | الف |
 | 2 | Bá' | B (The Letter) | باء | باء |
-| 3 | Ab | Father | اب | اب |
+| 3 | Ab | Father | أب | اب |
 | 4 | Dál | D (The Letter) | دال | دال |
 | 5 | Báb | Gate | باب | باب |
 | 6 | Váv | V (The Letter) | واو | واو |
-| 7 | Abad | Eternity | ابد | ابد |
+| 7 | Abad | Eternity | أبد | ابد |
 | 8 | Jád | Generosity | جاد | جاد |
 | 9 | Bahá | Splendor | بهاء | بهاء |
-| 10 | Hubb | Love | حب | حب |
-| 11 | Bahháj | Delightful | بهاج | بهاج |
+| 10 | Hubb | Love | حب | حبّ |
+| 11 | Bahháj | Delightful | بهاج | بهّاج |
 | 12 | Javáb | Answer | جواب | جواب |
 | 13 | Ahad | Single | احد | احد |
-| 14 | Vahháb | Bountiful | وهاب | وهاب |
+| 14 | Vahháb | Bountiful | وهاب | وهّاب |
 | 15 | Vidád | Affection | وداد | وداد |
-| 16 | Badí' | Beginning | بديع | بديع |
-| 17 | Bahí | Luminous | بهي | بهي |
-| 18 | Abhá | Most Luminous | ابهى | ابهى |
+| 16 | Badí' | Beginning | بديع | بدیع |
+| 17 | Bahí | Luminous | بهي | بهی |
+| 18 | Abhá | Most Luminous | ابهى | ابهی |
 | 19 | Váhid | Unity | واحد | واحد |
+
+### Holy Day Names
+
+Listed in the order they fall in the Badí' year (Ridván days 1, 9, and 12 are separate observances).
+
+| Holy Day | Arabic Script | Persian Script |
+|----------|---------------|----------------|
+| Naw-Rúz | عيد النَّيروز | عید نوروز |
+| 1st day of Riḍván | اليوم الأول من عيد الرِّضوان | روز اوّل عید رضوان |
+| 9th day of Riḍván | اليوم التاسع من عيد الرِّضوان | روز نهم عید رضوان |
+| 12th day of Riḍván | اليوم الثاني عشر من عيد الرِّضوان | روز دوازدهم عید رضوان |
+| Declaration of the Báb | يوم إعلان دعوة حضرة الباب | اظهار امر حضرت باب |
+| Ascension of Bahá’u’lláh | يوم صعود حضرة بهاء الله | صعود حضرت بهاءالله |
+| Martyrdom of the Báb | يوم استشهاد حضرة الباب | شهادت حضرت باب |
+| Birth of the Báb | يوم ولادة حضرة الباب | تولّد حضرت باب |
+| Birth of Bahá’u’lláh | يوم ولادة حضرة بهاء الله | تولّد حضرت بهاءالله |
+| Day of the Covenant | يوم الميثاق | روز عهد و میثاق |
+| Ascension of ‘Abdu’l-Bahá | يوم صعود حضرة عبد البهاء | صعود حضرت عبدالبهاء |
 
 ## Notes
 

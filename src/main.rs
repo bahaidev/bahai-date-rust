@@ -41,7 +41,7 @@ enum TextMode {
 }
 
 impl NameFlags {
-    /// "Mashíyyat (Will)" or, with flags, "Mashíyyat (Will · مشية)"
+    /// "Mashíyyat (Will)" or, with flags, "Mashíyyat (Will · مشيّة)"
     fn format(&self, info: &NameInfo) -> String {
         let mut parts = vec![info.name];
         if !info.meaning.is_empty() {
@@ -60,7 +60,7 @@ impl NameFlags {
     }
 
     /// Inline variant for embedding inside existing parens:
-    /// "Mashíyyat — Will" or, with flags, "Mashíyyat — Will · مشية"
+    /// "Mashíyyat — Will" or, with flags, "Mashíyyat — Will · مشيّة"
     fn format_inline(&self, info: &NameInfo) -> String {
         let mut parts = vec![info.name.to_string()];
         if !info.meaning.is_empty() {
@@ -74,6 +74,29 @@ impl NameFlags {
         }
         parts.join(" ")
     }
+
+    /// Script spellings for a holy day, in display order.
+    fn holy_day_scripts(&self, holy_day: &BahaiHolyDay) -> Vec<&'static str> {
+        let script = holy_day_script(holy_day);
+        let mut parts = Vec::new();
+        if self.arabic && !script.arabic.is_empty() {
+            parts.push(script.arabic);
+        }
+        if self.persian && !script.persian.is_empty() && script.persian != script.arabic {
+            parts.push(script.persian);
+        }
+        parts
+    }
+
+    /// "Naw-Rúz" or, with flags, "Naw-Rúz (عيد النَّيروز · عید نوروز)"
+    fn format_holy_day(&self, holy_day: &BahaiHolyDay) -> String {
+        let parts = self.holy_day_scripts(holy_day);
+        if parts.is_empty() {
+            holy_day.english()
+        } else {
+            format!("{} ({})", holy_day.english(), parts.join(" · "))
+        }
+    }
 }
 
 /// The 19 months (source: "Bahá'í Calendar Data - Overview.csv").
@@ -86,9 +109,9 @@ const MONTHS: [NameInfo; 19] = [
     NameInfo { name: "Rahmat", meaning: "Mercy", arabic: "رحمة", persian: "رحمت" },
     NameInfo { name: "Kalimát", meaning: "Words", arabic: "كلمات", persian: "کلمات" },
     NameInfo { name: "Kamál", meaning: "Perfection", arabic: "كمال", persian: "کمال" },
-    NameInfo { name: "Asmá'", meaning: "Names", arabic: "اسماء", persian: "اسماء" },
-    NameInfo { name: "'Izzat", meaning: "Might", arabic: "عزة", persian: "عزت" },
-    NameInfo { name: "Mashíyyat", meaning: "Will", arabic: "مشيئة", persian: "مشيت" },
+    NameInfo { name: "Asmá'", meaning: "Names", arabic: "أسماء", persian: "اسماء" },
+    NameInfo { name: "'Izzat", meaning: "Might", arabic: "عزّة", persian: "عزّت" },
+    NameInfo { name: "Mashíyyat", meaning: "Will", arabic: "مشيّة", persian: "مشیّت" },
     NameInfo { name: "'Ilm", meaning: "Knowledge", arabic: "علم", persian: "علم" },
     NameInfo { name: "Qudrat", meaning: "Power", arabic: "قدرة", persian: "قدرت" },
     NameInfo { name: "Qawl", meaning: "Speech", arabic: "قول", persian: "قول" },
@@ -99,34 +122,34 @@ const MONTHS: [NameInfo; 19] = [
     NameInfo { name: "'Alá'", meaning: "Loftiness", arabic: "علاء", persian: "علاء" },
 ];
 
-/// Ayyám-i-Há (not in the CSV; names from the badi-date crate locale).
+/// Ayyám-i-Há (not in the CSV; spellings follow the corrected badiDate locales).
 const AYYAM_I_HA: NameInfo = NameInfo {
     name: "Ayyám-i-Há",
     meaning: "The Days of Há",
-    arabic: "ايام الهاء",
-    persian: "ايام الهاء",
+    arabic: "أيّام الهاء",
+    persian: "ایّام ها",
 };
 
 /// The 19 years of the Váḥid cycle (source: "Bahá'í Calendar Data - Overview.csv").
 const VAHID_YEARS: [NameInfo; 19] = [
-    NameInfo { name: "Alif", meaning: "A (The Letter)", arabic: "الف", persian: "الف" },
+    NameInfo { name: "Alif", meaning: "A (The Letter)", arabic: "ألف", persian: "الف" },
     NameInfo { name: "Bá'", meaning: "B (The Letter)", arabic: "باء", persian: "باء" },
-    NameInfo { name: "Ab", meaning: "Father", arabic: "اب", persian: "اب" },
+    NameInfo { name: "Ab", meaning: "Father", arabic: "أب", persian: "اب" },
     NameInfo { name: "Dál", meaning: "D (The Letter)", arabic: "دال", persian: "دال" },
     NameInfo { name: "Báb", meaning: "Gate", arabic: "باب", persian: "باب" },
     NameInfo { name: "Váv", meaning: "V (The Letter)", arabic: "واو", persian: "واو" },
-    NameInfo { name: "Abad", meaning: "Eternity", arabic: "ابد", persian: "ابد" },
+    NameInfo { name: "Abad", meaning: "Eternity", arabic: "أبد", persian: "ابد" },
     NameInfo { name: "Jád", meaning: "Generosity", arabic: "جاد", persian: "جاد" },
     NameInfo { name: "Bahá", meaning: "Splendor", arabic: "بهاء", persian: "بهاء" },
-    NameInfo { name: "Hubb", meaning: "Love", arabic: "حب", persian: "حب" },
-    NameInfo { name: "Bahháj", meaning: "Delightful", arabic: "بهاج", persian: "بهاج" },
+    NameInfo { name: "Hubb", meaning: "Love", arabic: "حب", persian: "حبّ" },
+    NameInfo { name: "Bahháj", meaning: "Delightful", arabic: "بهاج", persian: "بهّاج" },
     NameInfo { name: "Javáb", meaning: "Answer", arabic: "جواب", persian: "جواب" },
     NameInfo { name: "Ahad", meaning: "Single", arabic: "احد", persian: "احد" },
-    NameInfo { name: "Vahháb", meaning: "Bountiful", arabic: "وهاب", persian: "وهاب" },
+    NameInfo { name: "Vahháb", meaning: "Bountiful", arabic: "وهاب", persian: "وهّاب" },
     NameInfo { name: "Vidád", meaning: "Affection", arabic: "وداد", persian: "وداد" },
-    NameInfo { name: "Badí'", meaning: "Beginning", arabic: "بديع", persian: "بديع" },
-    NameInfo { name: "Bahí", meaning: "Luminous", arabic: "بهي", persian: "بهي" },
-    NameInfo { name: "Abhá", meaning: "Most Luminous", arabic: "ابهى", persian: "ابهى" },
+    NameInfo { name: "Badí'", meaning: "Beginning", arabic: "بديع", persian: "بدیع" },
+    NameInfo { name: "Bahí", meaning: "Luminous", arabic: "بهي", persian: "بهی" },
+    NameInfo { name: "Abhá", meaning: "Most Luminous", arabic: "ابهى", persian: "ابهی" },
     NameInfo { name: "Váhid", meaning: "Unity", arabic: "واحد", persian: "واحد" },
 ];
 
@@ -183,6 +206,61 @@ fn badi_weekday(badi: &LocalBadiDate) -> Weekday {
     start_date.succ_opt().unwrap_or(start_date).weekday()
 }
 
+/// Arabic and Persian script for a holy day (spellings from the corrected badiDate locales).
+struct HolyDayScript {
+    arabic: &'static str,
+    persian: &'static str,
+}
+
+fn holy_day_script(holy_day: &BahaiHolyDay) -> HolyDayScript {
+    match holy_day {
+        BahaiHolyDay::NawRuz => HolyDayScript {
+            arabic: "عيد النَّيروز",
+            persian: "عید نوروز",
+        },
+        BahaiHolyDay::Ridvan1st => HolyDayScript {
+            arabic: "اليوم الأول من عيد الرِّضوان",
+            persian: "روز اوّل عید رضوان",
+        },
+        BahaiHolyDay::Ridvan9th => HolyDayScript {
+            arabic: "اليوم التاسع من عيد الرِّضوان",
+            persian: "روز نهم عید رضوان",
+        },
+        BahaiHolyDay::Ridvan12th => HolyDayScript {
+            arabic: "اليوم الثاني عشر من عيد الرِّضوان",
+            persian: "روز دوازدهم عید رضوان",
+        },
+        BahaiHolyDay::DeclarationOfTheBab => HolyDayScript {
+            arabic: "يوم إعلان دعوة حضرة الباب",
+            persian: "اظهار امر حضرت باب",
+        },
+        BahaiHolyDay::AscensionOfBahaullah => HolyDayScript {
+            arabic: "يوم صعود حضرة بهاء الله",
+            persian: "صعود حضرت بهاءالله",
+        },
+        BahaiHolyDay::MartyrdomOfTheBab => HolyDayScript {
+            arabic: "يوم استشهاد حضرة الباب",
+            persian: "شهادت حضرت باب",
+        },
+        BahaiHolyDay::BirthOfTheBab => HolyDayScript {
+            arabic: "يوم ولادة حضرة الباب",
+            persian: "تولّد حضرت باب",
+        },
+        BahaiHolyDay::BirthOfBahaullah => HolyDayScript {
+            arabic: "يوم ولادة حضرة بهاء الله",
+            persian: "تولّد حضرت بهاءالله",
+        },
+        BahaiHolyDay::DayOfTheCovenant => HolyDayScript {
+            arabic: "يوم الميثاق",
+            persian: "روز عهد و میثاق",
+        },
+        BahaiHolyDay::AscensionOfAbdulBaha => HolyDayScript {
+            arabic: "يوم صعود حضرة عبد البهاء",
+            persian: "صعود حضرت عبدالبهاء",
+        },
+    }
+}
+
 /// Name of the year within the current Váḥid cycle (1-based Badi year).
 fn vahid_year_info(year: u16) -> &'static NameInfo {
     &VAHID_YEARS[(year.saturating_sub(1) % 19) as usize]
@@ -202,7 +280,7 @@ fn year_line(year: u16, names: NameFlags) -> String {
 }
 
 /// Holy day / Ayyám-i-Há / Feast annotation lines; emoji prefixes optional.
-fn badi_annotations(badi: &LocalBadiDate, emoji: bool) -> Vec<String> {
+fn badi_annotations(badi: &LocalBadiDate, emoji: bool, names: NameFlags) -> Vec<String> {
     let month = badi.month();
     let mut out = Vec::new();
 
@@ -218,7 +296,9 @@ fn badi_annotations(badi: &LocalBadiDate, emoji: bool) -> Vec<String> {
             } else {
                 "observance"
             };
-            out.push(format!("{}{} ({})", prefix, hd.english(), work));
+            let mut bits = vec![work];
+            bits.extend(names.holy_day_scripts(&hd));
+            out.push(format!("{}{} ({})", prefix, hd.english(), bits.join(" · ")));
         }
     }
 
@@ -264,7 +344,7 @@ fn text_line(badi: &LocalBadiDate, names: NameFlags, full: bool) -> String {
         names.format(&weekday_info(badi_weekday(badi))),
         year_line(badi.year() as u16, names),
     ];
-    parts.extend(badi_annotations(badi, false));
+    parts.extend(badi_annotations(badi, false, names));
     parts.join(" · ")
 }
 
@@ -303,11 +383,11 @@ struct Cli {
     #[arg(short = 'c', long, visible_alias = "cd", global = true, num_args = 0..=1, default_missing_value = "all")]
     countdown: Option<String>,
 
-    /// Include Arabic-script names of months, weekdays, and Vahid years
+    /// Include Arabic-script names of months, weekdays, Vahid years, and holy days
     #[arg(long, global = true)]
     arabic: bool,
 
-    /// Include Persian-script names of months, weekdays, and Vahid years
+    /// Include Persian-script names of months, weekdays, Vahid years, and holy days
     #[arg(long, global = true)]
     persian: bool,
 
@@ -397,7 +477,7 @@ fn main() {
     }
 
     if let Some(bucket) = cli.countdown {
-        show_countdown(tz, coords.ok(), &bucket);
+        show_countdown(tz, coords.ok(), &bucket, names);
         return;
     }
 
@@ -421,7 +501,7 @@ fn main() {
             show_next_holy_day(tz, coords.ok(), cli.fancy, text_mode, names);
         }
         Commands::HolyDays => {
-            show_holy_days(tz, coords.ok(), cli.fancy);
+            show_holy_days(tz, coords.ok(), cli.fancy, names);
         }
     }
 }
@@ -463,7 +543,7 @@ fn show_fancy_badi(badi: &LocalBadiDate, dt: chrono::DateTime<Tz>, names: NameFl
     ];
 
     // Build annotation lines for holy day / Ayyam-i-Ha / feast
-    let annotations = badi_annotations(badi, true);
+    let annotations = badi_annotations(badi, true, names);
 
     if !annotations.is_empty() {
         args.push(String::new());
@@ -584,7 +664,7 @@ fn show_progress(tz: Tz, coords: Option<Coordinates>, entry: &str, names: NameFl
                                 &format!(
                                     "{} Next Holy Day: {} in {} days",
                                     hd_emoji,
-                                    hd.english(),
+                                    names.format_holy_day(&hd),
                                     diff
                                 ),
                                 "214",
@@ -631,7 +711,7 @@ fn show_progress(tz: Tz, coords: Option<Coordinates>, entry: &str, names: NameFl
     }
 }
 
-fn show_countdown(tz: Tz, coords: Option<Coordinates>, bucket: &str) {
+fn show_countdown(tz: Tz, coords: Option<Coordinates>, bucket: &str, names: NameFlags) {
     let now = chrono::Utc::now().with_timezone(&tz);
     let badi = match LocalBadiDate::from_datetime(now, coords) {
         Ok(b) => b,
@@ -642,7 +722,7 @@ fn show_countdown(tz: Tz, coords: Option<Coordinates>, bucket: &str) {
     };
 
     if bucket == "all" {
-        show_countdown_all(&badi, now, tz, coords);
+        show_countdown_all(&badi, now, tz, coords, names);
         return;
     }
 
@@ -704,6 +784,7 @@ fn show_countdown_all(
     now: chrono::DateTime<Tz>,
     tz: Tz,
     coords: Option<Coordinates>,
+    names: NameFlags,
 ) {
     println!();
 
@@ -730,7 +811,7 @@ fn show_countdown_all(
                         "\x1B[38;5;214m{}\x1B[0m days until {} {}",
                         hd_diff,
                         holy_day_emoji(&hd),
-                        hd.english()
+                        names.format_holy_day(&hd)
                     );
                 }
             }
@@ -936,7 +1017,7 @@ fn print_badi_date(badi: &LocalBadiDate, dt: chrono::DateTime<Tz>, names: NameFl
     );
     println!("Timezone: {}", badi.timezone().name());
 
-    for ann in badi_annotations(badi, true) {
+    for ann in badi_annotations(badi, true, names) {
         println!("{}", ann);
     }
 }
@@ -990,7 +1071,7 @@ fn show_next_holy_day(
         );
         let date_part = format!(
             "{} · {} {} {} · {} · {} days from now",
-            hd.english(),
+            names.format_holy_day(&hd),
             next_hd.day(),
             names.format(month_info(&next_hd.month())),
             next_hd.year(),
@@ -1003,7 +1084,7 @@ fn show_next_holy_day(
             println!("{}", date_part);
         }
     } else if fancy {
-        let header = format!("{} {}", hd_emoji, hd.english());
+        let header = format!("{} {}", hd_emoji, names.format_holy_day(&hd));
         let badi_info = format!(
             "{} {} {}",
             next_hd.day(),
@@ -1036,7 +1117,7 @@ fn show_next_holy_day(
             .arg(gum_style(&celeb, "247", false))
             .status();
     } else {
-        println!("{} {}", hd_emoji, hd.english());
+        println!("{} {}", hd_emoji, names.format_holy_day(&hd));
         println!(
             "Baha'i: {} {} {}",
             next_hd.day(),
@@ -1052,7 +1133,7 @@ fn show_next_holy_day(
     }
 }
 
-fn show_holy_days(tz: Tz, coords: Option<Coordinates>, fancy: bool) {
+fn show_holy_days(tz: Tz, coords: Option<Coordinates>, fancy: bool, names: NameFlags) {
     let now = chrono::Utc::now().with_timezone(&tz);
     let badi = match LocalBadiDate::from_datetime(now, coords) {
         Ok(b) => b,
@@ -1095,7 +1176,19 @@ fn show_holy_days(tz: Tz, coords: Option<Coordinates>, fancy: bool) {
         .collect();
     entries.sort_by_key(|(doy, _)| *doy);
 
-    for (day_of_year, hd) in entries {
+    // Script flags widen the holy day column rather than breaking its alignment.
+    let name_cells: Vec<String> = entries
+        .iter()
+        .map(|(_, hd)| names.format_holy_day(hd))
+        .collect();
+    let name_width = name_cells
+        .iter()
+        .map(|cell| cell.chars().count())
+        .max()
+        .unwrap_or(36)
+        .max(36);
+
+    for ((day_of_year, hd), name_cell) in entries.into_iter().zip(name_cells) {
         let hd_emoji = holy_day_emoji(&hd);
         let work_status = if hd.work_suspended() {
             "work suspended"
@@ -1113,21 +1206,23 @@ fn show_holy_days(tz: Tz, coords: Option<Coordinates>, fancy: bool) {
 
                 if fancy {
                     println!(
-                        "{} {:<36} {:<18} {} ({})",
+                        "{} {:<width$} {:<18} {} ({})",
                         hd_emoji,
-                        gum_style(&hd.english(), "214", false),
+                        gum_style(&name_cell, "214", false),
                         gum_style(&badi_str, "183", false),
                         gum_style(&greg_str, "247", false),
                         work_status,
+                        width = name_width,
                     );
                 } else {
                     println!(
-                        "{} {:<36} {:<18} {} ({})",
+                        "{} {:<width$} {:<18} {} ({})",
                         hd_emoji,
-                        hd.english(),
+                        name_cell,
                         badi_str,
                         greg_str,
                         work_status,
+                        width = name_width,
                     );
                 }
             }
